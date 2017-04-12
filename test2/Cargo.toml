@@ -1,0 +1,6 @@
+[package]
+name = "test2"
+version = "0.1.0"
+authors = ["clara <clara.mueller@vilera.de>"]
+
+[dependencies]
