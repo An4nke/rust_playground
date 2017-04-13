@@ -6,8 +6,8 @@ authors = [ "Clara Benedicta Maria Mueller <clara.mueller@vilera.de>" ]
 
 
 [[bin]]
-name = "main"
-path = "/media/win_e/Clara_Daten/etc/Programmierung/Rust/src/main.rs"
+name = "test"
+path = "/media/win_e/Clara_Daten/etc/Programmierung/Rust/src/test.rs"
 
 
 [dependencies]
