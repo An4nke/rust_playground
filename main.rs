@@ -1,51 +1,76 @@
-// vectors
-// jesus respawn is near!
+#![allow(unstable)] // allow unstable libraries
+
+
+// programm for password generation
+
+
+// To-Do:
+// parameters for password options
+// Strength of password (number from parameter)
+// not to complicated character  (| l I ö 0) 
+
+
+// crates
+extern crate rand;
+extern crate getopts;
+
+
+use rand::Rng;
+// use std::__rand::thread_rng;
+use getopts::Options;
+use std::string::String;
+use std::str::FromStr;
+use std::env; // use command line arguments
 
 
 // main function
 fn main() { 
-    // assigning vectors
-    let mut v = vec![1, 2, 3, 4, 5]; // v: vec<i32>
-    let w = vec![10; 0]; // vector of 10 zeroes
-    
-    // print particular element of v 
-    println!("the 3. element of v is:{}", v[2]); // counting elements beginning at 0
-    
-    // index
-    let i: usize = 0;
-    // let j: i32 = 0; // doesn't work!
-    println!("ite element: {}", v[i]);
+	// get parameters
+	let args: Vec<String> = env::args().collect();
+	// let program = args[0].clone(); // name of program inside parameters
 
-    // handling out of bound errors
-    match w.get(8) { // use 'get()' or 'get_mut()'
-        Some(x) => println!("item 7 is: {}", x),
-        None => println!("Sorry, this vectori is to short!")
-    }
-    
-    // iteration of vectors
-    for i in &v { // using unmutable references
-        println!("A reference to {}", i);
-    }
-    for i in &mut v {
-        println!("A mutable reference to {}", i);
-    }
-    for i in v { // note: you cannot use vector again!
-        println!("Take ownership of the vector and its elements {}", i);
-    }
+	let mut opts = Options::new(); // create new options objetct
+    opts.optopt("l", "", "set length of password", "LENGTH");
+    opts.optflag("h", "help", "print this help menu");
+    let matches = match opts.parse(&args[1..]) {
+        Ok(m) => { m } // match
+        Err(f) => { panic!(f.to_string()) }
+    };
 
-    let a = 5; // a: i32
-    let b = true; // b: bool
-    let a2 = double(a); 
-    let b2 = change_truth(b);
-    println!("{}", a); // works, because i32 has no pointer -> copy trait implemented
-    println!("{}", b); // works -> bool has copy trait
+
+	// variable for length of password
+	let mut pass_length: i32 = 8;
+	let mut password = String::new(); // assign password as empty string
+	let mut rng = rand::thread_rng(); // instance of thread; rng = random number generator (object)
+	
+	// variable for strength of password
+	let mut score: i32 = 0; // 0 -> no password/very bad password
+	
+	// assign array with (ascii) signs
+	let mut  signs : Vec<char> = vec![];
+	
+	// fill vector with number of ASCII signs allowed for password
+	for i in 33u8..126u8 {
+		signs.push(i as char);
+	}
+	
+	// looping -> creation of password
+	for _ in 0..pass_length {
+		// choose random element from vector signs -> get ASCII signs for number
+		password.push(*(rng.choose(&signs).unwrap())); // * for dereference for processing
+	}
+
+	// length, special character, different characters, non redundance
+	let length = password.len(); // get length of string
+	// println!("length: {}", password.len());
+
+	// we have a password
+	println!("password is: {}", password);
 }
 
 
 // function
-fn double(x: i32) -> i32 {
-    x * 2
-}
-fn change_truth(x: bool) -> bool {
-    !x
+fn print_usage(program: &str, opts: Options) {
+    let brief = format!("Usage: {} FILE [options]", program);
+    print!("{}", opts.usage(&brief));
 }
