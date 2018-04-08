@@ -12,7 +12,7 @@ use rand::Rng;
 fn main() { 
 
 	// variable for length of password
-	let mut pass_length: i32 = 8;
+	let pass_length: i32 = 8;
 	let mut password = String::new(); // assign password as empty string
 	let mut rng = rand::thread_rng(); // instance of thread; rng = random number generator (object)
 	
