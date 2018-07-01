@@ -1,0 +1,17 @@
+[package]
+
+name = "Rust_Playground"
+version = "0.0.1"
+authors = [ "Clara Benedicta Maria Mueller <clara.mueller@vilera.de>" ]
+
+
+[[bin]]
+name = "stuff"
+path = "/media/win_e/Clara_Daten/etc/Programmierung/Rust/src/passwordgenerator.rs"
+
+
+[dependencies]
+regex = "0.2"
+rand = "0.3.15"
+getopts = "0.2"
+text_io = "0.1.7"
