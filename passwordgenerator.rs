@@ -1,5 +1,6 @@
 #![allow(unstable)] // allow unstable libraries
 
+
 // programm for password generation
 
 // cargo run -- -l 10 -n 2 -s 50
@@ -22,6 +23,7 @@ extern crate getopts;
 use rand::Rng;
 use getopts::Options;
 use std::env; // use parameters
+use std::io::{self, BufRead}; 
 
 
 // functions
@@ -52,7 +54,7 @@ fn filler () -> Vec<char> {
 }
 
 // creation of passward with certain length
-fn pw (pass_length: &i32, signs: &Vec<char>) -> String {
+fn pw (pass_length: &usize, signs: &Vec<char>) -> String {
 	let mut password = String::new(); // assign password as empty string
 	let mut rng = rand::thread_rng(); // instance of thread; rng = random number generator (object)
 	for _ in 0..*pass_length {
@@ -64,11 +66,23 @@ fn pw (pass_length: &i32, signs: &Vec<char>) -> String {
 	return password
 }
 
+// create n passwords
+fn muPW (number: &i32, pass_length: &usize, signs: &Vec<char>) {
+	println!("Printing {} passwords of lengths {}", number, pass_length);
+	for x in 0..*number {
+		// create password
+		let password = pw(&pass_length, &signs);
+				
+		// we have a password
+		println!("{}", password);
+	}
+}
+
 
 // main function
 fn main() {
 	// variables
-	let mut pass_length: i32 = 8; // length of password
+	let mut pass_length: usize = 8; // length of password
 	let mut number: i32 = 1; // set number of created passwords
 	let mut limit = 20; // set score threshold for password
 	let mut score = 0; // score for password quality
@@ -83,28 +97,39 @@ fn main() {
 	opts.optopt("l", "length", "set length of password [default: 8]", "LENGTH");
 	opts.optopt("n", "number", "set number of created passwords [default: 1]", "NUMBER");
 	opts.optopt("s", "score", "set score of password", "SCORE");
+	opts.optflag("v", "verify", "verification"); // verification of existing password
 	opts.optflag("h", "help", "print this help menu");
 	let matches = match opts.parse(&args[1..]) {
 		Ok(m) => { m }
 		Err(f) => { panic!(f.to_string()) }
 	};
 	
+	// PARAMETERS
 	// print help menu??
 	if matches.opt_present("h") {
 		print_usage(&program, opts);
 		return;
 	}
-	pass_length = matches.opt_str("l").unwrap().parse::<i32>().unwrap(); // unwrap Options<String> from opt_str -> convert into int // unwrap_or(String::from())
-	number = matches.opt_str("n").unwrap().parse::<i32>().unwrap(); 
-	score = matches.opt_str("s").unwrap().parse::<i32>().unwrap();
-	println!("Password length: {}, Number of passwords: {}, Score of Password: {}", pass_length, number, score);		
-	score += pass_length;
-	
-	// assign array with (ascii) signs
-	let mut  signs : Vec<char> = filler();
 
-	// create n passwords
-	for x in 0..number {
+	// only verification of existing password from STDIN
+	if matches.opt_present("v") {
+		// verification of password
+		let input = io::stdin(); // read password from stdin
+		let mut password = input.lock().lines().next().unwrap().unwrap();
+		pass_length = password.chars().count(); // get password length
+		score += pass_length;
+		println!("{} with length {} this get a score of {}", password, pass_length, score);
+	} else {
+		pass_length = matches.opt_str("l").unwrap().parse::<usize>().unwrap(); // unwrap Options<String> from opt_str -> convert into int // unwrap_or(String::from())
+		number = matches.opt_str("n").unwrap().parse::<i32>().unwrap(); 
+		score = matches.opt_str("s").unwrap().parse::<usize>().unwrap();
+		//println!("Password length: {}, Number of passwords: {}, Score of Password: {}", pass_length, number, score);	
+		let mut  signs : Vec<char> = filler(); // assign array with (ascii) signs
+		muPW (&number, &pass_length, &signs); // create n passwords
+	}
+	
+	
+/*	for x in 0..number {
 		// create password
 		let password = pw(&pass_length, &signs);
 		
@@ -132,4 +157,5 @@ fn main() {
 		// we have a password
 		println!("password is: {}", password);
 	}
+*/
 }
