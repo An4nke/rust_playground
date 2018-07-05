@@ -20,7 +20,9 @@
 
 extern crate rand;
 extern crate getopts;
+extern crate num_traits;
 use rand::Rng;
+use num_traits::pow;
 use getopts::Options;
 use std::env; // use parameters
 use std::io::{self, BufRead}; 
@@ -85,7 +87,7 @@ fn main() {
 	let mut pass_length: usize = 8; // length of password
 	let mut number: i32 = 1; // set number of created passwords
 	let mut limit = 20; // set score threshold for password
-	let mut score = 0; // score for password quality
+	let mut score: f64 = 0.0; // score for password quality
 	
 	// parameters
 	//let args: Vec<String> = std::env::args().skip(1).collect(); // skip() -> skip programm call
@@ -113,49 +115,51 @@ fn main() {
 
 	// only verification of existing password from STDIN
 	if matches.opt_present("v") {
-		// verification of password
 		let input = io::stdin(); // read password from stdin
 		let mut password = input.lock().lines().next().unwrap().unwrap();
 		pass_length = password.chars().count(); // get password length
-		score += pass_length;
+		// pass_length usize -> f64
+		let tmp: f64 = pass_length.clone() as f64;
+		score += tmp;
 		println!("{} with length {} this get a score of {}", password, pass_length, score);
-	} else {
-		pass_length = matches.opt_str("l").unwrap().parse::<usize>().unwrap(); // unwrap Options<String> from opt_str -> convert into int // unwrap_or(String::from())
-		number = matches.opt_str("n").unwrap().parse::<i32>().unwrap(); 
-		score = matches.opt_str("s").unwrap().parse::<usize>().unwrap();
-		//println!("Password length: {}, Number of passwords: {}, Score of Password: {}", pass_length, number, score);	
-		let mut  signs : Vec<char> = filler(); // assign array with (ascii) signs
-		muPW (&number, &pass_length, &signs); // create n passwords
-	}
-	
-	
-/*	for x in 0..number {
-		// create password
-		let password = pw(&pass_length, &signs);
-		
-		//let mut control = String::new();
 		let mut control: char = password.chars().next().unwrap(); // get first element of string
+		//let test: char = '5';
 		println!("first {}", control);
 
+		let mut lowcase = 0; // counter for lowercase
+		let mut upcase = 0; // counter for upptercase
+		let mut dup: f64 = 0.0; // number of same character in row
+		// verification of password
 		for c in password.chars() {
 			
 			// c already used?
-			match c {
-				control => println!("{} is already in use -> {}", c, control),
-				_ => println!("{} is new, not {}", c, control),
+			if c == control {
+				println!("{} is already in use -> {}", c, control);
+				println!("OUR counter is {}", dup);
+				dup += 1.0;
+			} else {
+				println!("{} is new, not {}", c, control);
+				//let test = pow(2, dup - 1); // power of: pow(base, exponent) -> for score
+				score -= 2f64.powf(dup - 1.0); // power of: pow(base, exponent) -> for score
+				println!("SCORE {}", score);
+				dup = 0.0;
 			}
-			
+
 			// same character more times in a row?
 			
 			// different cases
 			
-			println!("{} vs {}", control, c);
+			//println!("{} vs {}", control, c);
 			//control.push(c.clone());
-			control = c;
+			control = c.clone();
 		}
 		
-		// we have a password
-		println!("password is: {}", password);
+	} else {
+		pass_length = matches.opt_str("l").unwrap().parse::<usize>().unwrap(); // unwrap Options<String> from opt_str -> convert into int // unwrap_or(String::from())
+		number = matches.opt_str("n").unwrap().parse::<i32>().unwrap(); 
+		score = matches.opt_str("s").unwrap().parse::<f64>().unwrap();
+		//println!("Password length: {}, Number of passwords: {}, Score of Password: {}", pass_length, number, score);	
+		let mut  signs : Vec<char> = filler(); // assign array with (ascii) signs
+		muPW (&number, &pass_length, &signs); // create n passwords
 	}
-*/
 }
