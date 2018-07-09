@@ -1,9 +1,21 @@
 #![allow(unstable)] // allow unstable libraries
 
+extern crate rand;
+extern crate getopts;
+extern crate num_traits;
+extern crate regex;
+
+use rand::Rng;
+use num_traits::pow;
+use getopts::Options;
+use std::env; // use parameters
+use std::io::{self, BufRead}; 
+use regex::Regex;
 
 // programm for password generation
 
 // cargo run -- -l 10 -n 2 -s 50
+// cat testword | cargo run -- -v
 
 
 // To-Do
@@ -18,17 +30,9 @@
 
 
 
-extern crate rand;
-extern crate getopts;
-extern crate num_traits;
-use rand::Rng;
-use num_traits::pow;
-use getopts::Options;
-use std::env; // use parameters
-use std::io::{self, BufRead}; 
-
-
 // functions
+
+
 
 // print help menu
 fn print_usage(program: &str, opts: Options) {
@@ -121,39 +125,53 @@ fn main() {
 		// pass_length usize -> f64
 		let tmp: f64 = pass_length.clone() as f64;
 		score += tmp;
-		println!("{} with length {} this get a score of {}", password, pass_length, score);
+		//println!("{} with length {} this get a score of {}", password, pass_length, score);
 		let mut control: char = password.chars().next().unwrap(); // get first element of string
 		//let test: char = '5';
-		println!("first {}", control);
+		//println!("first {}", control);
 
 		let mut lowcase = 0; // counter for lowercase
 		let mut upcase = 0; // counter for upptercase
+		let uprex = Regex::new(r"[A-Z]").unwrap(); // regex uppercase
+		let lowex = Regex::new(r"[a-z]").unwrap();// regex lowercase
+		assert!(uprex.is_match("A")); // testing regex
+		assert!(lowex.is_match("b")); 
+		
 		let mut dup: f64 = 0.0; // number of same character in row
 		// verification of password
 		for c in password.chars() {
 			
-			// c already used?
-			if c == control {
-				println!("{} is already in use -> {}", c, control);
-				println!("OUR counter is {}", dup);
+			// same character more times in a row? 
+			if c == control { // c already used?
+				//println!("{} is already in use -> {}", c, control);
+				//println!("OUR counter is {}", dup);
 				dup += 1.0;
 			} else {
-				println!("{} is new, not {}", c, control);
-				//let test = pow(2, dup - 1); // power of: pow(base, exponent) -> for score
+				//println!("{} is new, not {}", c, control);
 				score -= 2f64.powf(dup - 1.0); // power of: pow(base, exponent) -> for score
-				println!("SCORE {}", score);
+				//println!("SCORE {}", score);
 				dup = 0.0;
 			}
 
-			// same character more times in a row?
-			
 			// different cases
-			
+			let cstr = c.to_string(); // convert <char> into <String>
+			if uprex.is_match(&cstr) {
+				println!("uppercase letter {}", c);
+				upcase = 1;
+			} else if lowex.is_match(&cstr) {
+				println!("lowercase letter {}", c);
+				lowcase = 1;				
+			}
+				
 			//println!("{} vs {}", control, c);
-			//control.push(c.clone());
 			control = c.clone();
 		}
 		
+		// different cases?
+		if lowcase == 1 && upcase == 1 {
+			score += 4.0; // increase score
+		}
+		println!("password {} has a score of {}!", password, score);
 	} else {
 		pass_length = matches.opt_str("l").unwrap().parse::<usize>().unwrap(); // unwrap Options<String> from opt_str -> convert into int // unwrap_or(String::from())
 		number = matches.opt_str("n").unwrap().parse::<i32>().unwrap(); 
