@@ -32,8 +32,6 @@ use regex::Regex;
 
 // functions
 
-
-
 // print help menu
 fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} FILE [options]", program);
@@ -57,6 +55,25 @@ fn filler () -> Vec<char> {
 		}
 	}
 	return signs
+}
+
+// fill vector with special character only
+fn spcl () -> Vec<char> {
+	let mut special: Vec<char> = vec![];
+	// fill vector with special character
+	for i in 33u8..47u8 {
+		special.push(i as char)
+	}
+	for i in 58u8..64u8 {
+		special.push(i as char)		
+	}
+	for i in 91u8..96u8 {
+		special.push(i as char)		
+	}
+	for i in 123u8..126u8 {
+		special.push(i as char)
+	}
+	return special
 }
 
 // creation of passward with certain length
@@ -130,12 +147,16 @@ fn main() {
 		//let test: char = '5';
 		//println!("first {}", control);
 
+		let mut special: Vec<char> = spcl(); // fill vector with special character
 		let mut lowcase = 0; // counter for lowercase
 		let mut upcase = 0; // counter for upptercase
 		let uprex = Regex::new(r"[A-Z]").unwrap(); // regex uppercase
 		let lowex = Regex::new(r"[a-z]").unwrap();// regex lowercase
-		assert!(uprex.is_match("A")); // testing regex
-		assert!(lowex.is_match("b")); 
+		//assert!(uprex.is_match("A")); // testing regex
+		//assert!(lowex.is_match("b")); 
+		/*for i in &special {
+			println!("{}", i);
+		}*/
 		
 		let mut dup: f64 = 0.0; // number of same character in row
 		// verification of password
@@ -156,13 +177,15 @@ fn main() {
 			// different cases
 			let cstr = c.to_string(); // convert <char> into <String>
 			if uprex.is_match(&cstr) {
-				println!("uppercase letter {}", c);
+				//println!("uppercase letter {}", c);
 				upcase = 1;
 			} else if lowex.is_match(&cstr) {
-				println!("lowercase letter {}", c);
+				//println!("lowercase letter {}", c);
 				lowcase = 1;				
 			}
-				
+			
+			// special character??
+			
 			//println!("{} vs {}", control, c);
 			control = c.clone();
 		}
