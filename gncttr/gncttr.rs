@@ -1,13 +1,16 @@
 #![allow(unstable)] // allow unstable libraries
 #![feature(rustc_private)] 
 
-#[macro_use]
-extern crate chomp;
+#[macro_use] extern crate lazy_static;
+
+extern crate regex;
 
 use std::io;
 use std::io::prelude::*;
 //use chomp::primitives::Primitives;
 use std::collections::HashMap;
+use regex::Regex;
+use regex::Error;
 
 
 /// write: how compiled? how run programm? which parameters for programm call?
@@ -18,45 +21,101 @@ fn main () {
 	// fill hash with genetic code
 	let mut code = HashMap::new();
 	code = gencode(); // HashMap<String, String>
+	let starts : [String; 3] = [format!("ATG"), format!("TTG"), format!("CTG")]; // array -> fixed size!
+	let limit = 100000; // length limitation for analysed sequence window
 	
-/*	// translate codon into AS
-	let t = "TTT".to_string();
+	// regex for identication of nucleodide
+//	let nc_pattern = r"[ATCGN]";
+//	let res = Regex::new(nc_pattern);
+	
+	// translate codon into AS
+/*	let t = "TTT".to_string();
 	let AS = code.get(&t);
 	println!("AS for {} is {}", t, AS.unwrap());
-*/
+	if let Ok(regex) = res {
+		println!("regex ok, trying to match..");
+		let matches = regex.is_match(&t);
+		if matches {
+			println!("{} is nucleotid {}", t, nc_pattern);
+		} else {
+			println!("{} NOT a nucleotid sequence {}", t, nc_pattern);
+		}
+	} else {
+		println!("{:?}", res);
+	}
+*/	
 	
-/*	for key in code.keys() {
-		println!("{}", key);
-	}
-	for val in code.values() {
-		println!("{}", val);
-	}
-	for (key, val) in code.iter() {
-		println!("{} {}", key, val);
+	// playing with regex
+	let nc_pattern = Regex::new(r"[ATCGN]").unwrap(); // assign regex
+	let head = Regex::new(r"^>(.*)").unwrap(); // regex for capturing header
+	let test = ">wppwpweATTCGTGC8023582305";
+//	let after = re.replace_all(test, "--");
+//	println!("{}", after);
+/*	for cap in re.captures_iter(test) {
+		println!("{} -> {} -> {}", &cap[0], &cap[1], &cap[2]); // &cap[0] -> all captured by regex, &cap[1] -> 1st captured group, &cap[2] -> 2nd captured group, ...
 	}
 */
+/*	for cap in head.captures_iter(test) {
+		println!("Header: {}", &cap[1]);
+	}
+*/
+
+	//let matches = re.is_match(&test);
+	//assert!(re.is_match("TCGN"));
 	
 	// read sequence from stdin
 	let stdin = io::stdin();
 	let mut seq = String::new();
 	for mut line in stdin.lock().lines() {
-		let mut read = line.unwrap();
-		chomp(&mut read);
-		seq.push_str(&read); // concatenate strings
-		//println!("{}", seq);
+		let mut read = line.unwrap().to_string();
+		let h = head.is_match(&read); // fasta header?
+		let nt = nc_pattern.is_match(&read); // nucleotide sequences?
+		if h {
+			//eprintln!("HEADER found! {}", read);
+		} else if nt {
+			//eprintln!("NUCLEOTIDE sequences {}", read);
+			chomp(&mut read);
+			//println!("{}", read.len()); // 80 nt
+				seq.push_str(&read);
+				if seq.len() > limit {
+					//let codons = triple(&seq);
+					println!("{}", seq.len());
+					seq = seq[81..(seq.len() - 81)].to_string();
+				}
+				
+				// search for startcodon in seq
+				
+				// search for stopcodon in seq
+				
+				// start & stopcodon?? -> get sequence!
+
+			//seq.push_str(&read); // concatenate strings
+			//println!("{}", seq);
+		} else {
+			eprintln!("[ERROR]\tskipping line because of non-nucleotid sequence!");
+			continue;
+		}
 	}
-	
+
+
 	// split sequence into codons
-	let codons = triple(&seq);
+/*	let codons = triple(&seq);
 	for &c in codons.iter() {
 		//println!("{}", c);
+		
+		// find startcodon
+		//let ini = starts.iter().position(|r| r == c).unwrap();
+		//println!("{}", ini);
+		
 		// translate codons
 		let AS = code.get(c);
 		match AS {
 			Some(AS) => println!("{}", AS),
 			None 	=> println!("Something went wrong!!\n{} is no codon!", c),		  //println!("AS for codon {} is {}!", c, AS);
 		}
+
 	}
+*/	
 	
 	// clean sequence -> remove header (![ATCGNU])
 
