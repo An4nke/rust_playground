@@ -2,12 +2,12 @@
 
 name = "Rust_Playground"
 version = "0.0.1"
-authors = [ "Clara Benedicta Maria Mueller <clara.mueller@vilera.de>" ]
+authors = [ "Ananke" ]
 
 
 [[bin]]
 name = "stuff"
-path = "/media/win_e/Clara_Daten/etc/Programmierung/Rust/src/passwordgenerator.rs"
+path = "passwordgenerator.rs"
 
 
 [dependencies]
